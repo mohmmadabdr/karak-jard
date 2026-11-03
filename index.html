@@ -126,12 +126,18 @@ pre.msg{unicode-bidi:plaintext;text-align:start;white-space:pre-wrap;word-break:
 
 <datalist id="dlTypes"><option value="حاسوب مكتبي"><option value="لابتوب"><option value="شاشة"><option value="طابعة"><option value="آلة تصوير"><option value="سكانر"><option value="فاكس"><option value="جهاز لوحي (تابلت)"><option value="جهاز قراءة عدادات HHU"><option value="طابعة متنقلة"><option value="GPS"></datalist>
 
+<datalist id="dlBrands"><option value="Dell"><option value="HP"><option value="Lenovo"><option value="Acer"><option value="Fujitsu"><option value="Terra"><option value="IBM"><option value="Canon"><option value="Pantum"><option value="Xerox"><option value="Brother"><option value="Ricoh"><option value="Sharp"><option value="Konica Minolta"><option value="Kyocera"><option value="Samsung"><option value="Epson"><option value="OKI"><option value="Avision"><option value="Plustek"><option value="Zebra"><option value="Blackview"></datalist>
+
 <template id="tplDev">
   <div class="dev">
     <div class="tagtop"><span class="t">جهاز</span><span class="id"></span></div>
     <div class="body">
-      <label class="f">نوع الجهاز <span class="hint">(اختياري)</span>
-        <input class="type" list="dlTypes" autocomplete="off" placeholder="اختر من القائمة أو اكتب"></label>
+      <div class="grid2">
+        <label class="f">نوع الجهاز <span class="hint">(اختياري)</span>
+          <input class="type" list="dlTypes" autocomplete="off" placeholder="اختر من القائمة أو اكتب"></label>
+        <label class="f">الماركة <span class="hint">(اختياري)</span>
+          <input class="brand" list="dlBrands" autocomplete="off" placeholder="اختر من القائمة أو اكتب"></label>
+      </div>
       <div class="thumbs"></div>
       <label class="photoBtn">📷 أضف صور الجهاز (صورة عامة + صورة الملصق)
         <input type="file" class="photos" accept="image/*" multiple></label>
@@ -181,7 +187,7 @@ function renderThumbs(d){
 }
 function refresh(){
   devices.forEach((d, i) => {
-    const type = d.el.querySelector(".type").value.trim();
+    const type = [d.el.querySelector(".type").value.trim(), d.el.querySelector(".brand").value.trim()].filter(Boolean).join(" ");
     d.el.querySelector(".tagtop .t").textContent = `جهاز ${AR(i+1)}` + (type ? ` · ${type}` : "");
     d.el.querySelector(".tagtop .id").textContent = `${AR(d.photos.length)} صور`;
   });
@@ -195,7 +201,7 @@ function collect(){
     id: recId,
     date: d.toLocaleDateString("en-GB"), time: d.toTimeString().slice(0, 5),
     emp: $("#emp").value.trim().replace(/\s+/g, " "), dept: $("#dept").value.trim(), empNo: $("#empNo").value.trim(),
-    devices: devices.map((x, i) => ({n:i+1, type:x.el.querySelector(".type").value.trim(), notes:x.el.querySelector(".notes").value.trim(), photos:x.photos.length}))
+    devices: devices.map((x, i) => ({n:i+1, type:x.el.querySelector(".type").value.trim(), brand:x.el.querySelector(".brand").value.trim(), notes:x.el.querySelector(".notes").value.trim(), photos:x.photos.length}))
   };
 }
 function validate(r){
@@ -214,7 +220,7 @@ function buildMsg(r){
   if(r.empNo) L.push(`الرقم الوظيفي: ${r.empNo}`);
   L.push(`عدد الأجهزة: ${r.devices.length}`);
   r.devices.forEach(x => {
-    let s = `${x.n}) ${x.type || "جهاز"}`;
+    let s = `${x.n}) ${x.type || "جهاز"}${x.brand ? " " + x.brand : ""}`;
     if(x.notes) s += ` – ${x.notes}`;
     s += x.photos === 1 ? " (صورة وحدة)" : x.photos === 2 ? " (صورتين)" : ` (${x.photos} صور)`;
     L.push(s);
@@ -237,7 +243,7 @@ async function stamp(photo, r, x, k){
   g.font = `700 ${fs}px "IBM Plex Sans Arabic", Tahoma, sans-serif`;
   g.fillText(`${r.emp}${r.dept ? " · " + r.dept : ""}`, w - pad, h + pad * .6);
   g.font = `500 ${fs * .8}px "IBM Plex Sans Arabic", Tahoma, sans-serif`;
-  g.fillText(`جهاز ${x.n} من ${r.devices.length}${x.type ? " · " + x.type : ""} · صورة ${k} من ${x.photos} · ${r.id}`, w - pad, h + pad * .6 + fs * 1.4);
+  g.fillText(`جهاز ${x.n} من ${r.devices.length}${x.type ? " · " + x.type : ""}${x.brand ? " " + x.brand : ""} · صورة ${k} من ${x.photos} · ${r.id}`, w - pad, h + pad * .6 + fs * 1.4);
   const blob = await new Promise(res => c.toBlob(res, "image/jpeg", .85));
   return new File([blob], `${r.id}-${x.n}-${k}.jpg`, {type:"image/jpeg"});
 }
