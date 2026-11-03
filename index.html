@@ -2,7 +2,6 @@
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap">
-<script src="https://unpkg.com/@zxing/library@0.21.3/umd/index.min.js"></script>
 <style>
 /* Layout: one narrow column like a paper asset-tag form; each device is a tag card with a perforated top edge */
 :root{
@@ -88,9 +87,8 @@ pre.msg{unicode-bidi:plaintext;text-align:start;white-space:pre-wrap;word-break:
   <header>
     <span class="eyebrow">لجنة جرد الأجهزة</span>
     <h1>بطاقة جرد موظف</h1>
-    <p class="sub">موظف واحد في كل بطاقة، وتقدر تضيف له أكثر من جهاز. لما تخلص اضغط «إرسال»: الصور بتطلع مختومة بالبيانات، والنص جاهز للجروب.</p>
+    <p class="sub">اكتب اسم الموظف وصوّر أجهزته. لما تخلص اضغط «إرسال» وابعث للجروب.</p>
   </header>
-
 
   <section class="box" id="secEmp">
     <h2>الموظف</h2>
@@ -111,179 +109,61 @@ pre.msg{unicode-bidi:plaintext;text-align:start;white-space:pre-wrap;word-break:
     <h2>جاهز للإرسال</h2>
     <p class="hint" id="shareNote"></p>
     <div class="row">
-      <button class="primary" id="btnShare" type="button">مشاركة الصور + النص على واتساب</button>
-      <button id="btnCopy" type="button">نسخ النص</button>
-      <a id="waText" href="#" target="_blank" rel="noopener"><button type="button" tabindex="-1">إرسال النص فقط</button></a>
+      <button class="primary" id="btnShare" type="button">مشاركة الصور + الرسالة على واتساب</button>
+      <button id="btnCopy" type="button">نسخ الرسالة</button>
+      <a id="waText" href="#" target="_blank" rel="noopener"><button type="button" tabindex="-1">إرسال الرسالة فقط</button></a>
     </div>
     <pre class="msg" id="msg"></pre>
     <div class="stamps" id="stamps"></div>
-    <div class="row"><button class="primary" id="btnNew" type="button">✓ تم الإرسال – بطاقة جديدة</button></div>
-  </section>
-
-  <section class="box">
-    <h2>اللي انبعت اليوم من هذا الجهاز</h2>
-    <div class="log" id="log"><p class="hint">لسا ما انبعت شي اليوم.</p></div>
+    <div class="row"><button class="primary" id="btnNew" type="button">✓ تم الإرسال – موظف جديد</button></div>
   </section>
 </div>
 
 <div class="sticky"><div class="in">
-  <div class="grow" id="status">جهاز ١ · ٠ صور</div>
+  <div class="grow" id="status"></div>
   <button class="primary" id="btnPrep" type="button">إرسال</button>
 </div></div>
 
 <datalist id="dlTypes"><option value="حاسوب مكتبي"><option value="لابتوب"><option value="شاشة"><option value="طابعة"><option value="آلة تصوير"><option value="سكانر"><option value="فاكس"><option value="جهاز لوحي (تابلت)"><option value="جهاز قراءة عدادات HHU"><option value="طابعة متنقلة"><option value="GPS"></datalist>
-<datalist id="dlOwn"><option value="الشركة"><option value="سلطة"></datalist>
-<datalist id="dlSites"><option value="الإدارة الرئيسية – الكرك"><option value="محطة الغوير"><option value="المزار الجنوبي"><option value="مكتب مؤتة"><option value="مكتب مؤاب"><option value="القصر"><option value="الأغوار الصافي"><option value="مختبرات الجنوب"></datalist>
 
 <template id="tplDev">
   <div class="dev">
     <div class="tagtop"><span class="t">جهاز</span><span class="id"></span></div>
     <div class="body">
-      <div class="grid2">
-        <label class="f">نوع الجهاز <span class="req">*</span>
-          <input class="type" list="dlTypes" autocomplete="off" placeholder="اختر من القائمة أو اكتب"></label>
-        <label class="f">الماركة والموديل <span class="req">*</span>
-          <input class="model" autocomplete="off" placeholder="مثال: Dell Vostro 3910"></label>
-      </div>
-      <label class="f">الرقم التسلسلي / Service Tag <span class="req">*</span>
-        <input class="sn" inputmode="latin" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="مثال: 6SHK6Q3">
-        <span class="hint snHint">Dell: الـ Service Tag (7 خانات). HP: الـ Serial No. / SN#. لا تكتب رقم الحبر أو وحدة التغذية.</span></label>
-      <div class="chips found"></div>
-      <label class="chk"><input type="checkbox" class="nosn"> ما في رقم تسلسلي ظاهر على الجهاز</label>
-      <label class="f nosnWrap" hidden>ليش ما في رقم؟ <span class="req">*</span>
-        <input class="nosnWhy" placeholder="مثال: الملصق ممسوح / الجهاز مثبت بالحائط"></label>
-      <div class="grid2">
-        <label class="f">الحالة <span class="req">*</span>
-          <select class="cond"><option>يعمل</option><option>معطل</option><option>غير مستخدم</option><option>بحاجة صيانة</option><option>عند الصيانة</option></select></label>
-        <label class="f">الملكية
-          <input class="own" list="dlOwn" autocomplete="off" placeholder="اختر من القائمة أو اكتب"></label>
-      </div>
-      <label class="chk"><input type="checkbox" class="other"> العهدة باسم شخص آخر / الجهاز يستخدمه شخص غير الموظف</label>
-      <div class="grid2 otherWrap" hidden>
-        <label class="f">صاحب العهدة<input class="custody" autocomplete="off"></label>
-        <label class="f">المستخدم الفعلي<input class="user" autocomplete="off"></label>
-      </div>
-      <label class="f">وين لقيته / ملاحظات
-        <input class="notes" placeholder="مثال: بالمستودع، منقول من الديوان، بدون كيس…"></label>
+      <label class="f">نوع الجهاز <span class="hint">(اختياري)</span>
+        <input class="type" list="dlTypes" autocomplete="off" placeholder="اختر من القائمة أو اكتب"></label>
       <div class="thumbs"></div>
       <label class="photoBtn">📷 أضف صور الجهاز (صورة عامة + صورة الملصق)
         <input type="file" class="photos" accept="image/*" multiple></label>
-      <span class="hint scanHint"></span>
+      <label class="f">ملاحظة <span class="hint">(اختياري)</span>
+        <input class="notes" autocomplete="off" placeholder="مثال: معطل، بالمستودع، عهدة شخص آخر…"></label>
       <div class="row"><button type="button" class="ghost danger rm">حذف هذا الجهاز</button></div>
     </div>
   </div>
 </template>
 
 <script>
-const SITE_CODE = "KRK";
 const $ = s => document.querySelector(s);
 const AR = n => String(n).replace(/\d/g, d => "٠١٢٣٤٥٦٧٨٩"[d]);
-const store = {
-  get(k, d){ try{ const v = localStorage.getItem(k); return v ? JSON.parse(v) : d; }catch(e){ return d; } },
-  set(k, v){ try{ localStorage.setItem(k, JSON.stringify(v)); }catch(e){} }
-};
 function toast(t){ const el = document.createElement("div"); el.className = "toast"; el.textContent = t; document.body.appendChild(el); setTimeout(() => el.remove(), 2200); }
 
-const norm = s => (s || "").replace(/[أإآ]/g, "ا").replace(/ة/g, "ه").replace(/ى/g, "ي").replace(/\s+/g, " ").trim();
-const today = () => new Date().toISOString().slice(0, 10);
-
-// ---- state
-let devices = []; // {id, el, photos:[{file,url}], decoded:Set, scannedSN:null}
+let devices = [];
 let recId = newRecId();
 function newRecId(){
   const d = new Date(), p = n => String(n).padStart(2, "0");
-  const r = Math.random().toString(36).slice(2, 5).toUpperCase();
-  return `${SITE_CODE}-${p(d.getMonth()+1)}${p(d.getDate())}-${p(d.getHours())}${p(d.getMinutes())}-${r}`;
+  return `${p(d.getMonth()+1)}${p(d.getDate())}-${p(d.getHours())}${p(d.getMinutes())}-${Math.random().toString(36).slice(2, 4).toUpperCase()}`;
 }
 
-// ---- serial rules
-function snCheck(sn, model){
-  const s = sn.toUpperCase().replace(/\s/g, "");
-  const m = (model || "").toLowerCase();
-  if(!s) return {lvl:"", t:""};
-  if(/[^A-Z0-9\-]/.test(s)) return {lvl:"err", t:"الرقم فيه رموز غير مسموحة. فقط أحرف إنجليزية وأرقام."};
-  if(/^(W1A28A|W1A30A|CF\d{3}A|E6B67A|4ZB82A|G3Q34A|7KW75A|V7Q99EA)/.test(s)) return {lvl:"err", t:"هذا رقم المنتج (Product No.) مش الرقم التسلسلي."};
-  if(m.includes("dell") && !/^[0-9A-Z]{7}$/.test(s)) return {lvl:"warn", t:"الـ Service Tag لأجهزة Dell عادة 7 خانات بالضبط. تأكد."};
-  if(m.includes("hp 250") && !/^CND[0-9A-Z]{7}$/.test(s)) return {lvl:"warn", t:"لابتوبات HP 250 G8 أرقامها 10 خانات وتبدأ بـ CND. تأكد."};
-  if(m.includes("m428") && !/^CNDR[0-9A-Z]{6}$/.test(s)) return {lvl:"warn", t:"طابعات M428 أرقامها 10 خانات وتبدأ بـ CNDR. تأكد."};
-  if(s.length < 5) return {lvl:"warn", t:"الرقم قصير. تأكد إنه الرقم التسلسلي."};
-  if(/O/.test(s) && /\d/.test(s)) return {lvl:"warn", t:"فيه حرف O. تأكد إنه مش صفر 0."};
-  return {lvl:"ok", t:"شكل الرقم سليم."};
-}
-
-// ---- barcode reading from photos
-let zxReader = null;
-function getReader(){
-  if(zxReader || !window.ZXing) return zxReader;
-  try{
-    const hints = new Map();
-    hints.set(ZXing.DecodeHintType.TRY_HARDER, true);
-    hints.set(ZXing.DecodeHintType.POSSIBLE_FORMATS, [ZXing.BarcodeFormat.CODE_128, ZXing.BarcodeFormat.CODE_39, ZXing.BarcodeFormat.DATA_MATRIX, ZXing.BarcodeFormat.QR_CODE]);
-    zxReader = new ZXing.BrowserMultiFormatReader(hints);
-  }catch(e){ zxReader = null; }
-  return zxReader;
-}
-const isProductCode = v => /^(W1A2[0-9]A|W1A30A|CF\d{3}A|E6B67A|4ZB82A|G3Q34A|7KW75A|2Z6\d{2}A|V7Q99EA.*|\d{1,3})$/.test(v);
-function cleanCode(t){
-  t = (t || "").trim();
-  const q = t.match(/sn=([A-Z0-9]+)/i); if(q) return q[1].toUpperCase();      // Lenovo QR link
-  if(t.includes(",")) t = t.split(",")[0];                                    // HP DataMatrix "SN,PN,..."
-  if(/^1S[0-9A-Z]{10}([0-9A-Z]{8})$/.test(t)) return t.slice(-8);             // Lenovo 1S+MTM+SN
-  return t.toUpperCase();
-}
-async function decodeFile(file){
-  const out = new Set();
-  if("BarcodeDetector" in window){
-    try{ const bd = new BarcodeDetector(); const bmp = await createImageBitmap(file); (await bd.detect(bmp)).forEach(c => out.add(cleanCode(c.rawValue))); }catch(e){}
-  }
-  if(window.ZXing && !out.size){
-    const url = URL.createObjectURL(file);
-    try{
-      const img = await loadImg(url);
-      const hints = new Map(); hints.set(ZXing.DecodeHintType.TRY_HARDER, true);
-      const mr = new ZXing.MultiFormatReader(); mr.setHints(hints);
-      const W = img.naturalWidth, H = img.naturalHeight;
-      // scan the whole photo, then overlapping tiles: label barcodes are small in a phone photo
-      for(const g of [1, 2, 3, 4]){
-        const tw = Math.min(W, W / g * 1.4), th = Math.min(H, H / g * 1.4);
-        for(let i = 0; i < g; i++) for(let j = 0; j < g; j++){
-          const x = Math.max(0, Math.min(W - tw, i * W / g - tw * .15)), y = Math.max(0, Math.min(H - th, j * H / g - th * .15));
-          const sc = Math.min(1, 1100 / Math.max(tw, th)), w = Math.round(tw * sc), h = Math.round(th * sc);
-          for(const rot of [0, 1]){
-            const c = document.createElement("canvas"); c.width = rot ? h : w; c.height = rot ? w : h;
-            const ctx = c.getContext("2d"); if(rot){ ctx.translate(h, 0); ctx.rotate(Math.PI / 2); }
-            ctx.drawImage(img, x, y, tw, th, 0, 0, w, h);
-            try{ out.add(cleanCode(mr.decode(new ZXing.BinaryBitmap(new ZXing.HybridBinarizer(new ZXing.HTMLCanvasElementLuminanceSource(c)))).getText())); }catch(e){}
-          }
-          await new Promise(r => setTimeout(r, 0));
-        }
-        if([...out].some(v => !isProductCode(v) && v.length >= 5)) break;
-      }
-    }catch(e){}
-    URL.revokeObjectURL(url);
-  }
-  return [...out].filter(v => v.length >= 5 && !isProductCode(v));
-}
-
-// ---- device cards
 function addDevice(){
   const el = $("#tplDev").content.firstElementChild.cloneNode(true);
-  const d = {el, photos:[], decoded:new Set(), scannedSN:null};
+  const d = {el, photos:[]};
   devices.push(d);
   const q = s => el.querySelector(s);
-  q(".nosn").addEventListener("change", e => { q(".nosnWrap").hidden = !e.target.checked; q(".sn").disabled = e.target.checked; refresh(); });
-  q(".other").addEventListener("change", e => { q(".otherWrap").hidden = !e.target.checked; refresh(); });
-  q(".rm").addEventListener("click", () => { if(devices.length === 1){ toast("لازم يضل جهاز واحد على الأقل"); return; } devices = devices.filter(x => x !== d); el.remove(); refresh(); });
-  q(".sn").addEventListener("input", () => { d.scannedSN = null; renderChips(d); refresh(); });
-  el.addEventListener("input", refresh); el.addEventListener("change", refresh);
-  q(".photos").addEventListener("change", async e => {
-    const files = [...e.target.files]; e.target.value = "";
-    for(const f of files){ d.photos.push({file:f, url:URL.createObjectURL(f)}); }
-    renderThumbs(d); refresh();
-    q(".scanHint").textContent = "جاري قراءة الباركود من الصور…";
-    for(const f of files){ (await decodeFile(f)).forEach(c => d.decoded.add(c)); }
-    q(".scanHint").textContent = d.decoded.size ? "انقرأ باركود من الصور. اضغط على الرقم الصحيح لاعتماده." : "ما انقرأ باركود. اكتب الرقم يدوياً وتأكد منه.";
-    renderChips(d);
+  q(".rm").addEventListener("click", () => { if(devices.length === 1){ toast("لازم يضل جهاز واحد على الأقل"); return; } d.photos.forEach(p => URL.revokeObjectURL(p.url)); devices = devices.filter(x => x !== d); el.remove(); refresh(); });
+  el.addEventListener("input", refresh);
+  q(".photos").addEventListener("change", e => {
+    [...e.target.files].forEach(f => d.photos.push({file:f, url:URL.createObjectURL(f)}));
+    e.target.value = ""; renderThumbs(d); refresh();
   });
   $("#devices").appendChild(el);
   refresh();
@@ -299,132 +179,84 @@ function renderThumbs(d){
     box.appendChild(t);
   });
 }
-function renderChips(d){
-  const box = d.el.querySelector(".found"); box.innerHTML = "";
-  d.decoded.forEach(c => {
-    const b = document.createElement("span"); b.className = "chip" + (d.scannedSN === c ? " on" : ""); b.textContent = (d.scannedSN === c ? "✓ " : "") + c;
-    b.onclick = () => { d.scannedSN = c; const sn = d.el.querySelector(".sn"); sn.value = c; renderChips(d); refresh(); };
-    box.appendChild(b);
-  });
-}
-function readDev(d, i){
-  const q = s => d.el.querySelector(s);
-  const other = q(".other").checked;
-  return {
-    n: i + 1, type: q(".type").value, model: q(".model").value.trim(),
-    sn: q(".nosn").checked ? "" : q(".sn").value.toUpperCase().replace(/\s/g, ""),
-    snSource: d.scannedSN ? "باركود" : "يدوي",
-    noSn: q(".nosn").checked, noSnWhy: q(".nosnWhy").value.trim(),
-    cond: q(".cond").value, own: q(".own").value,
-    custody: other ? q(".custody").value.trim() : "", user: other ? q(".user").value.trim() : "",
-    notes: q(".notes").value.trim(), photos: d.photos.length
-  };
-}
-
-// ---- validation
-function collect(){
-  return {
-    id: recId, date: today(), time: new Date().toTimeString().slice(0, 5),
-    emp: $("#emp").value.trim(), dept: $("#dept").value.trim(), empNo: $("#empNo").value.trim(),
-    devices: devices.map(readDev)
-  };
-}
-function validate(r, mark){
-  const errs = [];
-  const flag = (el, bad) => { if(mark) el.classList.toggle("bad", !!bad); };
-  flag($("#emp"), !r.emp); if(!r.emp) errs.push("اكتب اسم الموظف.");
-  const seen = {}; const sentSN = store.get("sentSN", {});
-  r.devices.forEach((x, i) => {
-    const el = devices[i].el, q = s => el.querySelector(s), tag = `جهاز ${AR(i+1)}: `;
-    flag(q(".type"), !x.type); if(!x.type) errs.push(tag + "اختر نوع الجهاز.");
-    flag(q(".model"), !x.model); if(!x.model) errs.push(tag + "اكتب الماركة والموديل.");
-    if(!x.noSn){
-      const c = snCheck(x.sn, x.model);
-      flag(q(".sn"), !x.sn || c.lvl === "err"); if(!x.sn) errs.push(tag + "اكتب الرقم التسلسلي أو علّم «ما في رقم».");
-      if(c.lvl === "err") errs.push(tag + c.t);
-      if(x.sn && seen[x.sn]) errs.push(tag + "نفس الرقم مكتوب لجهاز آخر بهذه البطاقة.");
-      if(x.sn && sentSN[x.sn] && sentSN[x.sn] !== r.id) errs.push(tag + `هذا الرقم انبعت قبل (${sentSN[x.sn]}). لو هو نفس الجهاز ما في داعي تبعثه مرة ثانية.`);
-      seen[x.sn] = 1;
-    }else{
-      flag(q(".nosnWhy"), !x.noSnWhy); if(!x.noSnWhy) errs.push(tag + "وضّح ليش ما في رقم تسلسلي.");
-    }
-    if(!x.photos) errs.push(tag + "أضف صورة واحدة على الأقل.");
-  });
-  return errs;
-}
 function refresh(){
   devices.forEach((d, i) => {
-    const q = s => d.el.querySelector(s), x = readDev(d, i);
-    q(".tagtop .t").textContent = `جهاز ${AR(i+1)}` + (x.type ? ` · ${x.type}` : "");
-    q(".tagtop .id").textContent = `${recId}-${i+1}`;
-    const h = q(".snHint");
-    if(!x.noSn && x.sn){ const c = snCheck(x.sn, x.model); h.textContent = (x.snSource === "باركود" ? "✓ من الباركود. " : "") + c.t; h.className = "hint snHint " + c.lvl; }
-    else { h.textContent = "Dell: الـ Service Tag (7 خانات). HP: الـ Serial No. / SN#. لا تكتب رقم الحبر أو وحدة التغذية."; h.className = "hint snHint"; }
+    const type = d.el.querySelector(".type").value.trim();
+    d.el.querySelector(".tagtop .t").textContent = `جهاز ${AR(i+1)}` + (type ? ` · ${type}` : "");
+    d.el.querySelector(".tagtop .id").textContent = `${AR(d.photos.length)} صور`;
   });
   const n = devices.reduce((a, d) => a + d.photos.length, 0);
-  $("#status").textContent = `${AR(devices.length)} ${devices.length > 1 ? "أجهزة" : "جهاز"} · ${AR(n)} صور · ${recId}`;
+  $("#status").textContent = `${AR(devices.length)} ${devices.length > 1 ? "أجهزة" : "جهاز"} · ${AR(n)} صور`;
 }
 
-// ---- message + stamped photos
+function collect(){
+  const d = new Date();
+  return {
+    id: recId,
+    date: d.toLocaleDateString("en-GB"), time: d.toTimeString().slice(0, 5),
+    emp: $("#emp").value.trim().replace(/\s+/g, " "), dept: $("#dept").value.trim(), empNo: $("#empNo").value.trim(),
+    devices: devices.map((x, i) => ({n:i+1, type:x.el.querySelector(".type").value.trim(), notes:x.el.querySelector(".notes").value.trim(), photos:x.photos.length}))
+  };
+}
+function validate(r){
+  const errs = [];
+  $("#emp").classList.toggle("bad", !r.emp);
+  if(!r.emp) errs.push("اكتب اسم الموظف.");
+  r.devices.forEach((x, i) => { if(!x.photos) errs.push(`جهاز ${AR(i+1)}: أضف صورة واحدة على الأقل.`); });
+  return errs;
+}
+
+// Plain message the custody clerk can copy from directly
 function buildMsg(r){
   const L = [];
-  L.push(`#جرد ${r.id}`);
-  L.push(`👤 ${r.emp}${r.empNo ? " | رقم وظيفي: " + r.empNo : ""}`);
-  if(r.dept) L.push(`🏢 ${r.dept}`);
-  L.push(`📅 ${r.date} ${r.time}`);
+  L.push(`📋 جرد: ${r.emp}`);
+  if(r.dept) L.push(`القسم: ${r.dept}`);
+  if(r.empNo) L.push(`الرقم الوظيفي: ${r.empNo}`);
+  L.push(`عدد الأجهزة: ${r.devices.length}`);
   r.devices.forEach(x => {
-    L.push("");
-    L.push(`— جهاز ${x.n}/${r.devices.length}: ${x.type} —`);
-    L.push(`الموديل: ${x.model}`);
-    L.push(x.noSn ? `الرقم: لا يوجد (${x.noSnWhy})` : `الرقم: ${x.sn} (${x.snSource})`);
-    L.push(`الحالة: ${x.cond}${x.own ? " | الملكية: " + x.own : ""}`);
-    if(x.custody || x.user) L.push(`العهدة: ${x.custody || "—"} | المستخدم: ${x.user || "—"}`);
-    if(x.notes) L.push(`ملاحظات: ${x.notes}`);
-    L.push(`الصور: ${x.photos}`);
+    let s = `${x.n}) ${x.type || "جهاز"}`;
+    if(x.notes) s += ` – ${x.notes}`;
+    s += x.photos === 1 ? " (صورة وحدة)" : x.photos === 2 ? " (صورتين)" : ` (${x.photos} صور)`;
+    L.push(s);
   });
-  const compact = {v:2, id:r.id, d:r.date, t:r.time, e:r.emp, dp:r.dept, en:r.empNo,
-    dv:r.devices.map(x => ({n:x.n, ty:x.type, mo:x.model, sn:x.sn, src:x.snSource, ns:x.noSn?x.noSnWhy:"", c:x.cond, ow:x.own, cu:x.custody, us:x.user, no:x.notes, p:x.photos}))};
-  L.push(""); L.push("JRD1" + JSON.stringify(compact));
+  L.push(`التاريخ: ${r.date} ${r.time} · رقم البطاقة: ${r.id}`);
   return L.join("\n");
 }
+
 function loadImg(url){ return new Promise((res, rej) => { const i = new Image(); i.onload = () => res(i); i.onerror = rej; i.src = url; }); }
 async function stamp(photo, r, x, k){
   const img = await loadImg(photo.url);
-  const max = 1600, sc = Math.min(1, max / Math.max(img.naturalWidth, img.naturalHeight));
+  const sc = Math.min(1, 1600 / Math.max(img.naturalWidth, img.naturalHeight));
   const w = Math.round(img.naturalWidth * sc), h = Math.round(img.naturalHeight * sc);
-  const fs = Math.max(18, Math.round(w / 34)), band = fs * 4.4;
+  const fs = Math.max(18, Math.round(w / 32)), band = fs * 3.2, pad = fs * .6;
   const c = document.createElement("canvas"); c.width = w; c.height = h + band;
   const g = c.getContext("2d");
   g.drawImage(img, 0, 0, w, h);
   g.fillStyle = "#f2b233"; g.fillRect(0, h, w, band);
   g.fillStyle = "#1b1300"; g.direction = "rtl"; g.textAlign = "right"; g.textBaseline = "top";
-  const pad = fs * .6;
   g.font = `700 ${fs}px "IBM Plex Sans Arabic", Tahoma, sans-serif`;
-  g.fillText(`${r.emp}${r.dept ? " · " + r.dept : ""}${r.empNo ? " · " + r.empNo : ""}`, w - pad, h + pad * .7);
-  g.font = `500 ${fs * .85}px "IBM Plex Sans Arabic", Tahoma, sans-serif`;
-  g.fillText(`جهاز ${x.n}/${r.devices.length}: ${x.type} · ${x.model} · صورة ${k}/${x.photos}`, w - pad, h + pad * .7 + fs * 1.35);
-  g.direction = "ltr"; g.textAlign = "left";
-  g.font = `600 ${fs}px "IBM Plex Mono", Consolas, monospace`;
-  g.fillText(`${r.id}-${x.n}   SN: ${x.noSn ? "NONE" : x.sn}`, pad, h + pad * .7 + fs * 2.6);
+  g.fillText(`${r.emp}${r.dept ? " · " + r.dept : ""}`, w - pad, h + pad * .6);
+  g.font = `500 ${fs * .8}px "IBM Plex Sans Arabic", Tahoma, sans-serif`;
+  g.fillText(`جهاز ${x.n} من ${r.devices.length}${x.type ? " · " + x.type : ""} · صورة ${k} من ${x.photos} · ${r.id}`, w - pad, h + pad * .6 + fs * 1.4);
   const blob = await new Promise(res => c.toBlob(res, "image/jpeg", .85));
   return new File([blob], `${r.id}-${x.n}-${k}.jpg`, {type:"image/jpeg"});
 }
+
 let outFiles = [], outText = "";
 async function prepare(){
-  const r = collect(); const errs = validate(r, true);
-  document.querySelectorAll(".issues").forEach(e => e.remove());
+  const r = collect(); const errs = validate(r);
+  document.querySelectorAll("section.issues").forEach(e => e.remove());
   if(errs.length){
+    const box = document.createElement("section"); box.className = "box issues";
+    box.innerHTML = "<h2>لازم تكمل هدول قبل الإرسال</h2>";
     const ul = document.createElement("ul"); ul.className = "issues";
     errs.forEach(t => { const li = document.createElement("li"); li.textContent = t; ul.appendChild(li); });
-    const box = document.createElement("section"); box.className = "box issues"; box.innerHTML = "<h2>لازم تكمل هدول قبل الإرسال</h2>"; box.appendChild(ul);
-    $("#addDev").after(box); box.scrollIntoView({behavior:"smooth", block:"center"}); return;
+    box.appendChild(ul); $("#addDev").after(box); box.scrollIntoView({behavior:"smooth", block:"center"}); return;
   }
   $("#btnPrep").disabled = true; $("#btnPrep").textContent = "جاري التجهيز…";
   outText = buildMsg(r); outFiles = [];
-  for(let i = 0; i < r.devices.length; i++){
-    const x = r.devices[i];
-    for(let k = 0; k < devices[i].photos.length; k++) outFiles.push(await stamp(devices[i].photos[k], r, x, k + 1));
-  }
+  for(let i = 0; i < r.devices.length; i++)
+    for(let k = 0; k < devices[i].photos.length; k++) outFiles.push(await stamp(devices[i].photos[k], r, r.devices[i], k + 1));
   $("#msg").textContent = outText;
   const st = $("#stamps"); st.innerHTML = "";
   outFiles.forEach(f => { const im = document.createElement("img"); im.alt = f.name; im.src = URL.createObjectURL(f); st.appendChild(im); });
@@ -432,43 +264,31 @@ async function prepare(){
   const can = !!(navigator.canShare && navigator.canShare({files: outFiles.slice(0, 1)}));
   $("#btnShare").hidden = !can;
   $("#shareNote").textContent = can
-    ? "اضغط «مشاركة» واختر جروب «لجنة جرد اجهزة». النص انسخ تلقائياً، فإذا واتساب بعث الصور بدون نص، الصقه كرسالة بعدها."
-    : "المتصفح هنا ما بيسمح بمشاركة الصور مباشرة. اضغط مطولاً على كل صورة واحفظها، وابعثها للجروب، وبعدها اضغط «إرسال النص فقط».";
+    ? "اضغط «مشاركة» واختر جروب اللجنة. الرسالة انسخت كمان، فإذا وصلت الصور بدونها الصقها كرسالة بعدها."
+    : "المتصفح هنا ما بيسمح بمشاركة الصور مباشرة. اضغط مطولاً على كل صورة واحفظها، وابعثها للجروب، وبعدها اضغط «إرسال الرسالة فقط».";
   $("#outPanel").hidden = false; $("#outPanel").scrollIntoView({behavior:"smooth"});
   $("#btnPrep").disabled = false; $("#btnPrep").textContent = "إرسال";
   copyText(true);
-  r._final = true; window._lastRec = r;
 }
 async function copyText(silent){
-  try{ await navigator.clipboard.writeText(outText); if(!silent) toast("انسخ النص"); }
-  catch(e){ const rg = document.createRange(); rg.selectNodeContents($("#msg")); const s = getSelection(); s.removeAllRanges(); s.addRange(rg); if(!silent) toast("النص محدد – انسخه يدوياً"); }
+  try{ await navigator.clipboard.writeText(outText); if(!silent) toast("انسخت الرسالة"); }
+  catch(e){ const rg = document.createRange(); rg.selectNodeContents($("#msg")); const s = getSelection(); s.removeAllRanges(); s.addRange(rg); if(!silent) toast("الرسالة محددة – انسخها يدوياً"); }
 }
 async function share(){
   await copyText(true);
-  try{ await navigator.share({files: outFiles, text: outText}); toast("افتح الجروب وتأكد إن الصور والنص وصلوا"); }
-  catch(e){ if(e && e.name !== "AbortError") toast("تعذّرت المشاركة. استعمل «نسخ النص» واحفظ الصور يدوياً."); }
+  try{ await navigator.share({files: outFiles, text: outText}); }
+  catch(e){ if(e && e.name !== "AbortError") toast("تعذّرت المشاركة. احفظ الصور يدوياً واستعمل «نسخ الرسالة»."); }
 }
-function markSent(){
-  const r = window._lastRec; if(!r) return;
-  const log = store.get("log", []); log.unshift({id:r.id, d:r.date, t:r.time, emp:r.emp, n:r.devices.length, sn:r.devices.map(x => x.sn || "—")}); store.set("log", log.slice(0, 300));
-  const sent = store.get("sentSN", {}); r.devices.forEach(x => { if(x.sn) sent[x.sn] = r.id; }); store.set("sentSN", sent);
+function startNew(){
   devices.forEach(d => d.photos.forEach(p => URL.revokeObjectURL(p.url)));
-  devices = []; $("#devices").innerHTML = ""; $("#outPanel").hidden = true; window._lastRec = null;
-  ["#emp","#dept","#empNo"].forEach(s => $(s).value = "");
-  recId = newRecId(); addDevice(); renderLog(); window.scrollTo({top:0, behavior:"smooth"}); toast("تم. بطاقة جديدة جاهزة");
-}
-function renderLog(){
-  const log = store.get("log", []).filter(x => x.d === today()); const box = $("#log");
-  if(!log.length){ box.innerHTML = '<p class="hint">لسا ما انبعت شي اليوم.</p>'; return; }
-  box.innerHTML = "";
-  const head = document.createElement("p"); head.className = "hint"; head.textContent = `${AR(log.length)} بطاقة · ${AR(log.reduce((a, x) => a + x.n, 0))} جهاز`; box.appendChild(head);
-  log.forEach(x => { const it = document.createElement("div"); it.className = "it"; it.innerHTML = `<span></span><span class="mono"></span>`; it.children[0].textContent = `${x.t} · ${x.emp} (${AR(x.n)})`; it.children[1].textContent = x.id; box.appendChild(it); });
+  devices = []; $("#devices").innerHTML = ""; $("#outPanel").hidden = true;
+  ["#emp","#dept","#empNo"].forEach(s => { $(s).value = ""; $(s).classList.remove("bad"); });
+  recId = newRecId(); addDevice(); window.scrollTo({top:0, behavior:"smooth"}); toast("جاهز للموظف التالي");
 }
 
-// ---- boot
 ["#emp","#dept","#empNo"].forEach(s => $(s).addEventListener("input", refresh));
 $("#addDev").onclick = () => { const d = addDevice(); d.el.scrollIntoView({behavior:"smooth", block:"start"}); };
-$("#btnPrep").onclick = prepare; $("#btnCopy").onclick = () => copyText(false); $("#btnShare").onclick = share; $("#btnNew").onclick = markSent;
-addDevice(); renderLog();
+$("#btnPrep").onclick = prepare; $("#btnCopy").onclick = () => copyText(false); $("#btnShare").onclick = share; $("#btnNew").onclick = startNew;
+addDevice();
 </script>
 </body></html>
